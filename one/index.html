@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Shortener - Monet Theme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            transition: background-color 0.5s, color 0.5s; /* Transition for theme change */
+        }
+
+        /* Dark Theme */
+        body.dark {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        /* Light Theme */
+        body.light {
+            background-color: #f5f5f5;
+            color: #000000;
+        }
+
+        /* Tailwind CSS's custom Monet theme */
+        :root {
+            --monet-primary: #6200ea;
+            --monet-secondary: #03dac6;
+            --monet-background: #f5f5f5;
+            --monet-surface: #ffffff;
+            --monet-error: #b00020;
+            --monet-on-primary: #ffffff;
+            --monet-on-secondary: #000000;
+            --monet-on-background: #000000;
+            --monet-on-surface: #000000;
+            --monet-on-error: #ffffff;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--monet-primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Bouncing dots animation */
+        .bouncing-dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            border-radius: 50%;
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        .dot:nth-child(1) {
+            background-color: red;
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            background-color: green;
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            background-color: blue;
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            to {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-[var(--monet-background)] flex flex-col justify-center items-center h-screen light" id="body">
+
+    <!-- Loader -->
+    <div id="loader" class="flex flex-col justify-center items-center h-screen">
+        <div class="loading-spinner" id="loadingSpinner"></div>
+        <div class="bouncing-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <p>Loading...</p>
+    </div>
+
+    <div class="bg-[var(--monet-surface)] p-10 shadow-lg rounded-lg hidden" id="mainContent">
+        <button id="themeToggle" class="mb-4 p-2 border rounded">Toggle Dark/Light Theme</button>
+
+        <h1 class="text-3xl font-bold text-[var(--monet-primary)] mb-4">Link Shortener</h1>
+
+        <label for="url" class="block text-lg font-medium text-[var(--monet-on-surface)] mb-2">Enter URL:</label>
+        <input 
+            type="text" 
+            id="url" 
+            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[var(--monet-primary)] focus:outline-none" 
+            placeholder="Enter a link to shorten">
+        <br>
+
+        <div class="mt-4">
+            <button onclick="shortenLink()" class="bg-[var(--monet-primary)] hover:bg-[var(--monet-primary)]/90 text-[var(--monet-on-primary)] font-bold py-2 px-4 rounded">Shorten with da.gd</button>
+        </div>
+
+        <div class="result mt-6">
+            <h3 class="text-xl font-semibold text-[var(--monet-on-surface)]">Shortened URL:</h3>
+            <p id="shortenedUrl" class="text-lg text-[var(--monet-primary)] mt-2"></p>
+        </div>
+    </div>
+
+    <script>
+        // Show main content after a delay
+        window.onload = function() {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('hidden');
+        };
+
+        // Toggle between dark and light themes
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.getElementById('body');
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            body.classList.toggle('light');
+        });
+
+        async function shortenLink() {
+            const url = document.getElementById('url').value;
+            const spinner = document.getElementById('loadingSpinner');
+            const apiUrl = `https://da.gd/s?url=${encodeURIComponent(url)}`;
+
+            // Display loading animation
+            spinner.style.display = 'block';
+
+            try {
+                const response = await fetch(apiUrl);
+                const shortenedUrl = await response.text();
+
+                // Hide the loading animation
+                spinner.style.display = 'none';
+
+                document.getElementById('shortenedUrl').innerHTML = `<a href="${shortenedUrl}" target="_blank" class="underline">${shortenedUrl}</a>`;
+            } catch (error) {
+                // Hide the loading animation
+                spinner.style.display = 'none';
+                document.getElementById('shortenedUrl').textContent = 'Error shortening the URL.';
+            }
+        }
+    </script>
+
+</body>
+</html>
